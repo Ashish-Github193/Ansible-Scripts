@@ -1,0 +1,29 @@
+- name: Install curl in container
+  community.docker.docker_container_exec:
+    container: my_setup_container
+    command: bash -c "apt-get update && apt-get install -y curl"
+    user: root
+
+- name: Install git in container
+  community.docker.docker_container_exec:
+    container: my_setup_container
+    command: bash -c "apt-get update && apt-get install -y git"
+    user: root
+
+- name: Install make in container
+  community.docker.docker_container_exec:
+    container: my_setup_container
+    command: bash -c "apt-get update && apt-get install -y make"
+    user: root
+
+- name: Install gcc in container
+  community.docker.docker_container_exec:
+    container: my_setup_container
+    command: bash -c "apt-get update && apt-get install -y gcc"
+    user: root
+
+- name: Install GNU stow in container as user x
+  community.docker.docker_container_exec:
+    container: my_setup_container
+    command: bash -c "apt-get update && apt-get install -y stow"
+    user: root

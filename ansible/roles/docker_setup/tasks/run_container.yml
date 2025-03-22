@@ -1,0 +1,7 @@
+- name: Run Docker container
+  ansible.builtin.docker_container:
+    name: my_setup_container
+    image: custom_ubuntu_setup:latest
+    state: started
+    detach: yes
+

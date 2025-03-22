@@ -1,0 +1,5 @@
+- name: Install Docker Python module
+  ansible.builtin.pip:
+    name: docker
+    state: present
+

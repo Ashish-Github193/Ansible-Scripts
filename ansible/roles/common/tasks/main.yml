@@ -1,0 +1,4 @@
+# roles/common/tasks/main.yml
+- include_tasks: check_docker.yml
+- include_tasks: install_pip_docker.yml
+- include_tasks: install.yml

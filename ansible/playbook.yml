@@ -1,0 +1,7 @@
+- name: Setup localhost and configure Docker container
+  hosts: localhost
+  roles:
+    - common
+    - docker_setup
+    - container_setup
+

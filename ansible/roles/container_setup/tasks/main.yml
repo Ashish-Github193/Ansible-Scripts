@@ -1,0 +1,3 @@
+- include_tasks: install_tools.yml
+- include_tasks: configure_fzf.yml
+- include_tasks: configure_nvim.yml

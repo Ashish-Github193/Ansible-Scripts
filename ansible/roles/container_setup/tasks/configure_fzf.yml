@@ -1,0 +1,12 @@
+- name: Install fzf in container as user x
+  community.docker.docker_container_exec:
+    container: my_setup_container
+    command: bash -c "git clone --depth 1 https://github.com/junegunn/fzf.git /home/x/.fzf && /home/x/.fzf/install --all"
+    user: x
+
+- name: Configure fzf in bashrc in container
+  community.docker.docker_container_exec:
+    container: my_setup_container
+    command: bash -c "echo 'source /home/x/.fzf.bash' >> /home/x/.bashrc && echo 'export PATH=\"/home/x/.fzf/bin:$PATH\"' | cat - /home/x/.bashrc > /home/x/.bashrc.tmp && mv /home/x/.bashrc.tmp /home/x/.bashrc"
+    user: x
+
