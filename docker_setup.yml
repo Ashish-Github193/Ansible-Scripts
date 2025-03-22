@@ -1,0 +1,109 @@
+- name: Configure localhost to build and setup a Docker container
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Check if Docker is installed on host
+      ansible.builtin.command: docker --version
+      register: docker_check
+      changed_when: false
+      failed_when: docker_check.rc != 0
+      ignore_errors: yes
+
+    - name: Fail if Docker is not installed
+      ansible.builtin.fail:
+        msg: "Docker is not installed on the host. Please install it manually (e.g., via 'curl -fsSL https://get.docker.com | sh') and retry."
+      when: docker_check.rc != 0
+
+    - name: Install Docker Python module on host
+      ansible.builtin.pip:
+        name: docker
+        state: present
+
+    - name: Ensure Docker service is running on host
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Copy Dockerfile to project directory
+      ansible.builtin.copy:
+        content: |
+          FROM ubuntu:22.04
+          ENV DEBIAN_FRONTEND=noninteractive
+          RUN apt-get update && apt-get install -y \
+              sudo \
+              && rm -rf /var/lib/apt/lists/*
+          ARG USERNAME=X
+          ARG PASSWORD=x
+          RUN useradd -m -s /bin/bash ${USERNAME} \
+              && echo "${USERNAME}:${PASSWORD}" | chpasswd \
+              && usermod -aG sudo ${USERNAME}
+          WORKDIR /home/${USERNAME}
+          CMD ["sleep", "infinity"]
+        dest: "{{ playbook_dir }}/Dockerfile"
+        mode: '0644'
+
+    - name: Build Docker image
+      ansible.builtin.docker_image:
+        name: custom_ubuntu_setup
+        tag: latest
+        source: build
+        build:
+          path: "{{ playbook_dir }}"
+        state: present
+
+    - name: Run Docker container
+      ansible.builtin.docker_container:
+        name: my_setup_container
+        image: custom_ubuntu_setup:latest
+        state: started
+        detach: yes
+
+    - name: Install curl in container
+      community.docker.docker_container_exec:
+        container: my_setup_container
+        command: bash -c "apt-get update && apt-get install -y curl"
+        user: root
+
+    - name: Install git in container
+      community.docker.docker_container_exec:
+        container: my_setup_container
+        command: bash -c "apt-get update && apt-get install -y git"
+        user: root
+
+    - name: Install make in container
+      community.docker.docker_container_exec:
+        container: my_setup_container
+        command: bash -c "apt-get update && apt-get install -y make"
+        user: root
+
+    - name: Install gcc in container
+      community.docker.docker_container_exec:
+        container: my_setup_container
+        command: bash -c "apt-get update && apt-get install -y gcc"
+        user: root
+
+    - name: Install Neovim in container
+      community.docker.docker_container_exec:
+        container: my_setup_container
+        command: bash -c "curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz && tar -C /opt -xzf nvim-linux-x86_64.tar.gz && rm nvim-linux-x86_64.tar.gz && ln -s /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim"
+        user: root
+
+    - name: Install fzf in container as user X
+      community.docker.docker_container_exec:
+        container: my_setup_container
+        command: bash -c "git clone --depth 1 https://github.com/junegunn/fzf.git /home/X/.fzf && /home/X/.fzf/install --all"
+        user: X
+
+    - name: Configure fzf in bashrc in container
+      community.docker.docker_container_exec:
+        container: my_setup_container
+        command: bash -c "echo 'source /home/X/.fzf.bash' >> /home/X/.bashrc && echo 'export PATH=\"/home/X/.fzf/bin:$PATH\"' | cat - /home/X/.bashrc > /home/X/.bashrc.tmp && mv /home/X/.bashrc.tmp /home/X/.bashrc"
+        user: X
+
+    - name: Install Packer.nvim in container as user X
+      community.docker.docker_container_exec:
+        container: my_setup_container
+        command: bash -c "git clone --depth 1 https://github.com/wbthomason/packer.nvim /home/X/.local/share/nvim/site/pack/packer/start/packer.nvim"
+        user: X
+
