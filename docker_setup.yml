@@ -33,7 +33,7 @@
           RUN apt-get update && apt-get install -y \
               sudo \
               && rm -rf /var/lib/apt/lists/*
-          ARG USERNAME=X
+          ARG USERNAME=x
           ARG PASSWORD=x
           RUN useradd -m -s /bin/bash ${USERNAME} \
               && echo "${USERNAME}:${PASSWORD}" | chpasswd \
@@ -83,27 +83,46 @@
         command: bash -c "apt-get update && apt-get install -y gcc"
         user: root
 
+    - name: Install GNU stow in container as user x
+      community.docker.docker_container_exec:
+        container: my_setup_container
+        command: bash -c "apt-get update && apt-get install -y stow"
+        user: root
+
     - name: Install Neovim in container
       community.docker.docker_container_exec:
         container: my_setup_container
         command: bash -c "curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz && tar -C /opt -xzf nvim-linux-x86_64.tar.gz && rm nvim-linux-x86_64.tar.gz && ln -s /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim"
         user: root
 
-    - name: Install fzf in container as user X
+    - name: Install fzf in container as user x
       community.docker.docker_container_exec:
         container: my_setup_container
-        command: bash -c "git clone --depth 1 https://github.com/junegunn/fzf.git /home/X/.fzf && /home/X/.fzf/install --all"
-        user: X
+        command: bash -c "git clone --depth 1 https://github.com/junegunn/fzf.git /home/x/.fzf && /home/x/.fzf/install --all"
+        user: x
 
     - name: Configure fzf in bashrc in container
       community.docker.docker_container_exec:
         container: my_setup_container
-        command: bash -c "echo 'source /home/X/.fzf.bash' >> /home/X/.bashrc && echo 'export PATH=\"/home/X/.fzf/bin:$PATH\"' | cat - /home/X/.bashrc > /home/X/.bashrc.tmp && mv /home/X/.bashrc.tmp /home/X/.bashrc"
-        user: X
+        command: bash -c "echo 'source /home/x/.fzf.bash' >> /home/x/.bashrc && echo 'export PATH=\"/home/x/.fzf/bin:$PATH\"' | cat - /home/x/.bashrc > /home/x/.bashrc.tmp && mv /home/x/.bashrc.tmp /home/x/.bashrc"
+        user: x
 
-    - name: Install Packer.nvim in container as user X
+    - name: Install Packer.nvim in container as user x
       community.docker.docker_container_exec:
         container: my_setup_container
-        command: bash -c "git clone --depth 1 https://github.com/wbthomason/packer.nvim /home/X/.local/share/nvim/site/pack/packer/start/packer.nvim"
-        user: X
+        command: bash -c "git clone --depth 1 https://github.com/wbthomason/packer.nvim /home/x/.local/share/nvim/site/pack/packer/start/packer.nvim"
+        user: x
+
+    - name: Add Neovim config to container
+      community.docker.docker_container_exec:
+        container: my_setup_container
+        command: bash -c "git clone --depth 1 https://github.com/Ashish-Github193/Gnu-stow-repo.git /home/x/Projects/Gnu-stow-repo"
+        user: x
+
+    - name: Add Neovim config symlink
+      community.docker.docker_container_exec:
+        container: my_setup_container
+        command: bash -c "cd /home/x/Projects/Gnu-stow-repo && stow -t ~ nvim"
+        user: x
+
 
