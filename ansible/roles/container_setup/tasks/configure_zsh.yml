@@ -1,0 +1,33 @@
+- name: Set GNU Stow repo path and PATH in .zshenv in container
+  community.docker.docker_container_exec:
+    container: dev_container
+    command: |
+      sh -c 'echo "PATH=\"$PATH:/usr/games\"" >> ~/.zshenv && \
+             echo "GNU_STOW_GIT_REPO_PATH=~/Projects/Gnu-stow-repo" >> ~/.zshenv'
+    user: x
+
+- name: Append sourcing zshenv git check to .zshrc
+  community.docker.docker_container_exec:
+    container: dev_container
+    command: |
+      bash -c "echo -e '
+      # Souce the zshenv file
+      source ~/.zshenv
+      ' >> ~/.zshrc"
+    user: x
+
+- name: Append GNU Stow git check to .zshrc
+  community.docker.docker_container_exec:
+    container: dev_container
+    command: |
+      bash -c "echo -e '
+      # Check for uncommitted changes
+      if git -C \"$GNU_STOW_GIT_REPO_PATH\" diff --quiet && git -C \"$GNU_STOW_GIT_REPO_PATH\" diff --staged --quiet; then
+          # No uncommitted changes → Display a fortune message
+          fortune | cowsay
+      else
+          # Uncommitted changes exist → Display a funny warning
+          echo \"\\uf071 Your repo is a mess! Commit your changes!\" | cowsay
+      fi
+      ' >> ~/.zshrc"
+    user: x

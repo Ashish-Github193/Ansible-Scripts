@@ -1,0 +1,12 @@
+- name: Download and install lazygit binary with curl
+  community.docker.docker_container_exec:
+    container: dev_container
+    command: >
+      bash -c "curl -L https://github.com/jesseduffield/lazygit/releases/download/v0.40.2/lazygit_0.40.2_Linux_x86_64.tar.gz 
+      -o /tmp/lazygit.tar.gz &&
+      tar -xzf /tmp/lazygit.tar.gz -C /tmp &&
+      mv /tmp/lazygit /usr/local/bin/lazygit &&
+      chmod +x /usr/local/bin/lazygit &&
+      rm /tmp/lazygit.tar.gz"
+    user: root
+

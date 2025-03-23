@@ -1,29 +1,37 @@
-- name: Install curl in container
+- name: Install required packages in container
   community.docker.docker_container_exec:
-    container: my_setup_container
-    command: bash -c "apt-get update && apt-get install -y curl"
+    container: dev_container
+    command: |
+      bash -c "apt-get update && 
+               apt-get install -y build-essential \
+                                  curl \
+                                  git \
+                                  make \
+                                  gcc \
+                                  zsh \
+                                  stow \
+                                  tmux \
+                                  fortune \
+                                  cowsay \
+                                  exa && 
+               apt-get clean"
     user: root
 
-- name: Install git in container
+- name: Add stow repo to container
   community.docker.docker_container_exec:
-    container: my_setup_container
-    command: bash -c "apt-get update && apt-get install -y git"
-    user: root
+    container: dev_container
+    command: bash -c "git clone --depth 1 https://github.com/Ashish-Github193/Gnu-stow-repo.git /home/x/Projects/Gnu-stow-repo"
+    user: x
 
-- name: Install make in container
+- name: Add git config symlink
   community.docker.docker_container_exec:
-    container: my_setup_container
-    command: bash -c "apt-get update && apt-get install -y make"
-    user: root
+    container: dev_container
+    command: bash -c "cd /home/x/Projects/Gnu-stow-repo && stow -t ~ git"
+    user: x
 
-- name: Install gcc in container
+- name: Add tmux config symlink
   community.docker.docker_container_exec:
-    container: my_setup_container
-    command: bash -c "apt-get update && apt-get install -y gcc"
-    user: root
+    container: dev_container
+    command: bash -c "cd /home/x/Projects/Gnu-stow-repo && stow -t ~ tmux"
+    user: x
 
-- name: Install GNU stow in container as user x
-  community.docker.docker_container_exec:
-    container: my_setup_container
-    command: bash -c "apt-get update && apt-get install -y stow"
-    user: root

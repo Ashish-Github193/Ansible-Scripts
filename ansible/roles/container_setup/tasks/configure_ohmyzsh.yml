@@ -1,0 +1,16 @@
+- name: Copy oh-my-zsh setup script into the container
+  ansible.builtin.command:
+    cmd: docker cp "{{ playbook_dir }}/scripts/install_ohmyzsh.sh" dev_container:/home/x/ohmyzsh_installation_wrapper.sh
+  delegate_to: localhost
+
+- name: Set executable permissions on oh-my-zsh script in container
+  community.docker.docker_container_exec:
+    container: dev_container
+    command: bash -c "chmod +x /home/x/ohmyzsh_installation_wrapper.sh"
+    user: root
+
+- name: Install oh-my-zsh in container as root for user x
+  community.docker.docker_container_exec:
+    container: dev_container
+    command: bash -c "/home/x/ohmyzsh_installation_wrapper.sh"
+    user: root
