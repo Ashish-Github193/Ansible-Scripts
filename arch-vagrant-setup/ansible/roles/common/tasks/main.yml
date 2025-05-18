@@ -1,0 +1,2 @@
+- include_tasks: check_vagrant.yml
+- include_tasks: check_vbox.yml

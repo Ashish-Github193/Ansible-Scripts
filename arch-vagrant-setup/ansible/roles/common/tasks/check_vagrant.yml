@@ -1,0 +1,12 @@
+- name: Check if Vagrant is installed
+  ansible.builtin.command: vagrant --version
+  register: vagrant_check
+  changed_when: false
+  failed_when: vagrant_check.rc != 0
+  ignore_errors: true
+
+- name: Fail if Vagrant is not installed
+  ansible.builtin.fail:
+    msg: "Vagrant is not installed. Install it manually and retry."
+  when: vagrant_check.rc != 0
+

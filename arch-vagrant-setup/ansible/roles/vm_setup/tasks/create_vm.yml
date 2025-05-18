@@ -1,0 +1,9 @@
+- name: Run vagrant up to create and start the VM
+  command:
+    cmd: vagrant up
+    chdir: "{{ playbook_dir }}/scripts"  # Adjust to your Vagrantfile location
+  become_user: x  # Replace 'x' with the actual username if needed
+  register: vagrant_up_result
+  changed_when: vagrant_up_result.rc == 0  # Success indicates a change
+  failed_when: vagrant_up_result.rc != 0   # Fail on non-zero exit code
+  when: vagrantfile_result is defined and vagrantfile_result.changed  # Optional, tie to prior task

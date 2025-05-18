@@ -1,0 +1,5 @@
+- name: Setup localhost and configure vagrant and virtualbox
+  hosts: localhost
+  roles:
+    - common
+    - vm_setup

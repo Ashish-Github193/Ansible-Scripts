@@ -1,0 +1,12 @@
+- name: Check if VirtualBox is installed
+  ansible.builtin.command: VBoxManage --version
+  register: vmbox_check
+  changed_when: false
+  failed_when: vmbox_check.rc != 0
+  ignore_errors: true
+
+- name: Fail if VirtualBox is not installed
+  ansible.builtin.fail:
+    msg: "VirtualBox is not installed. Install it manually and retry."
+  when: vmbox_check.rc != 0
+
